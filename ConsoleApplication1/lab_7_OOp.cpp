@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -36,6 +37,16 @@ public:
 		return os;
 	}
 
+	friend ofstream& operator << (ofstream& ofs, arr<T>& a) {
+		if (a.size == NULL)
+			return ofs;
+		ofs << "[ ";
+		for (auto it = a.v.begin(); it != a.v.end() - 1; it++)
+			ofs << *it << ", ";
+		ofs << *(a.v.end() - 1) << " ]";
+		return ofs;
+	}
+
 	friend istream& operator >> (istream& is, arr<T>& a) {
 		T elem;
 		for (int i = 0; i < a.size; i++) {
@@ -45,7 +56,16 @@ public:
 		return is;
 	}
 
-	unsigned search(T elem) {
+	friend ifstream& operator >> (ifstream& ifs, arr<T>& a) {
+		T elem;
+		for (int i = 0; i < a.size; i++) {
+			ifs >> elem;
+			a.v[i] = elem;
+		}
+		return ifs;
+	}
+
+	int search(T elem) {
 		int i;
 		for (i = 0; i != size; i++) {
 			if (v[i] == elem)
@@ -57,11 +77,39 @@ public:
 	}
 };
 
-int main() {
-	arr<string> a(5);
-	cin >> a;
-	cout << a << endl;
-	cout << a.search("aq");
+template<class T>
+void to_file(string fname, arr<T> a) {
+	fstream file(fname, fstream::out | fstream::trunc);
+	file << a;
+	file.close();
+}
 
+template<class T>
+void from_file(string fname, arr<T>& a) {
+	fstream file(fname);
+	file >> a;
+	file.close();
+}
+
+int main() {
+	arr<string> string_array(5);
+	from_file("F:\\2_семестр\\лабораторні\\ООП\\лаб7\\in.txt", string_array);
+	to_file("F:\\2_семестр\\лабораторні\\ООП\\лаб7\\out.txt", string_array);
+	cout << string_array;
+
+	int size;
+	cout << "\n\n" << "input size of array: ";
+	cin >> size;
+	arr<int> int_array(size);
+	cin >> int_array;
+	cout << int_array;
+	int elem, index;
+	cout << "\n\nenter element to search: ";
+	cin >> elem;
+	index = int_array.search(elem);
+	if (index == -1)
+		cout << "not here" << endl;
+	else
+		cout << "element index: " << index << "\tand the value: " << int_array[index] << endl;
 	return 0;
 }
